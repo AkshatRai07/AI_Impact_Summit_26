@@ -152,12 +152,30 @@ async def run_workflow_async(user_id: str, initial_state: AgentState):
         
         # Send workflow started event
         await send_sse_event(user_id, "workflow_started", {
-            "message": "Workflow started"
+            "message": "Workflow started",
+            "stage": "initializing",
+            "stage_message": "🚀 Initializing workflow..."
+        })
+        
+        # Send "fetching jobs" stage before workflow starts
+        await send_sse_event(user_id, "stage_update", {
+            "stage": "fetching_jobs",
+            "stage_message": "📡 Fetching jobs from job boards..."
+        })
+        
+        # Small delay so user sees the fetching message
+        await asyncio.sleep(0.5)
+        
+        # Send "generating embeddings" stage  
+        await send_sse_event(user_id, "stage_update", {
+            "stage": "generating_embeddings",
+            "stage_message": "🧠 Generating embeddings for semantic matching..."
         })
         
         # Run the workflow with streaming to catch each node output
         # Increase recursion limit to handle many jobs (each job = 4+ nodes)
         config = {"recursion_limit": 200}
+        
         async for event in app_workflow.astream(initial_state, stream_mode="updates", config=config):
             for node_name, node_output in event.items():
                 print(f"[WORKFLOW] Node {node_name} completed")
@@ -176,19 +194,46 @@ async def run_workflow_async(user_id: str, initial_state: AgentState):
                 
                 # Send appropriate SSE event based on node
                 if node_name == "fetch_jobs":
+                    job_queue = node_output.get("job_queue", [])
+                    
                     await send_sse_event(user_id, "jobs_fetched", {
-                        "total_jobs": len(node_output.get("job_queue", [])),
-                        "jobs": node_output.get("job_queue", [])[:5]
+                        "total_jobs": len(job_queue),
+                        "jobs": job_queue[:5],
+                        "stage": "jobs_ready",
+                        "stage_message": f"📋 Found {len(job_queue)} matching jobs, ranked by semantic similarity"
                     })
+                    
+                    # Send "Personalizing" for the FIRST job BEFORE personalize runs
+                    if job_queue:
+                        first_job = job_queue[0]
+                        await asyncio.sleep(0.5)  # Brief pause to show "Found X jobs"
+                        await send_sse_event(user_id, "stage_update", {
+                            "stage": "personalizing",
+                            "stage_message": f"✍️ Personalizing cover letter for {first_job.get('title', 'Unknown')} at {first_job.get('company', 'Unknown')}..."
+                        })
                     
                 elif node_name == "personalize":
                     current_job = node_output.get("current_job", {})
+                    job_title = current_job.get("title", "Unknown")
+                    company = current_job.get("company", "Unknown")
+                    # Personalization is DONE, now send the result
                     await send_sse_event(user_id, "job_processing", {
                         "job": current_job,
                         "current_index": current_idx,
                         "total_jobs": total_jobs,
                         "tailored_resume": node_output.get("tailored_resume", {}),
-                        "tailored_cover_letter": node_output.get("tailored_cover_letter", "")
+                        "tailored_cover_letter": node_output.get("tailored_cover_letter", ""),
+                        "stage": "personalized",
+                        "stage_message": f"✅ Cover letter ready for {job_title} at {company}"
+                    })
+                
+                elif node_name == "safety_check":
+                    # After safety check, send submitting stage (before apply)
+                    current_job = state.get("current_job", {})
+                    company = current_job.get("company", "Unknown")
+                    await send_sse_event(user_id, "stage_update", {
+                        "stage": "submitting",
+                        "stage_message": f"📤 Submitting application to {company}..."
                     })
                     
                 elif node_name == "apply":
@@ -202,29 +247,57 @@ async def run_workflow_async(user_id: str, initial_state: AgentState):
                         submitted_count = len([a for a in all_apps if a.get("status") == "submitted"])
                         failed_count = len([a for a in all_apps if a.get("status") == "failed"])
                         
+                        status = latest.get("status", "unknown")
+                        job_title = latest.get("job_title", "Unknown")
+                        company = latest.get("company", "Unknown")
+                        stage_msg = f"✅ Applied to {job_title} at {company}!" if status == "submitted" else f"❌ Failed: {job_title} at {company}"
+                        
                         await send_sse_event(user_id, "application_result", {
                             "application": {
                                 "job_id": latest.get("job_id"),
-                                "job_title": latest.get("job_title"),
-                                "company": latest.get("company"),
-                                "status": latest.get("status"),
+                                "job_title": job_title,
+                                "company": company,
+                                "status": status,
                                 "confirmation_id": latest.get("confirmation_id"),
                                 "error_message": latest.get("error_message"),
                                 "cover_letter": latest.get("cover_letter"),
                             },
-                            "status": latest.get("status", "unknown"),
+                            "status": status,
                             "current_index": new_idx,
                             "total_jobs": total_jobs,
                             "total_submitted": submitted_count,
-                            "total_failed": failed_count
+                            "total_failed": failed_count,
+                            "stage": "applied",
+                            "stage_message": stage_msg
                         })
+                        
+                        # Send "Personalizing" for NEXT job BEFORE personalize runs
+                        if new_idx < total_jobs:
+                            next_job = job_queue[new_idx]
+                            await asyncio.sleep(0.3)  # Brief pause
+                            await send_sse_event(user_id, "stage_update", {
+                                "stage": "personalizing",
+                                "stage_message": f"✍️ Personalizing cover letter for {next_job.get('title', 'Unknown')} at {next_job.get('company', 'Unknown')}..."
+                            })
+                
+                elif node_name == "select_job":
+                    current_job = node_output.get("current_job", {})
+                    job_title = current_job.get("title", "Unknown")
+                    company = current_job.get("company", "Unknown")
+                    score = current_job.get("match_score", 0)
+                    await send_sse_event(user_id, "stage_update", {
+                        "stage": "selecting",
+                        "stage_message": f"🎯 Selected: {job_title} at {company} (score: {score:.0f})"
+                    })
                         
                 elif node_name == "skip_job":
                     new_idx = node_output.get("current_job_index", current_idx)
                     await send_sse_event(user_id, "job_skipped", {
                         "current_index": new_idx,
                         "total_jobs": total_jobs,
-                        "reason": "Low match score or safety check failed"
+                        "reason": "Low match score or safety check failed",
+                        "stage": "skipping",
+                        "stage_message": f"⏭️ Skipping job ({new_idx}/{total_jobs})..."
                     })
         
         # Workflow completed

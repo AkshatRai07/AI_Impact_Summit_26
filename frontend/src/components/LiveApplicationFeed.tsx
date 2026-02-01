@@ -36,6 +36,7 @@ export function LiveApplicationFeed({
   const [totalFailed, setTotalFailed] = useState(0);
   const [workflowStatus, setWorkflowStatus] = useState<"running" | "completed" | "failed">("running");
   const [error, setError] = useState<string | null>(null);
+  const [stageMessage, setStageMessage] = useState<string>("🔄 Starting...");
   const eventSourceRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
@@ -64,10 +65,16 @@ export function LiveApplicationFeed({
         switch (data.type) {
           case "workflow_started":
             setWorkflowStatus("running");
+            if (data.stage_message) setStageMessage(data.stage_message);
+            break;
+
+          case "stage_update":
+            if (data.stage_message) setStageMessage(data.stage_message);
             break;
 
           case "jobs_fetched":
             setTotalJobs(data.total_jobs || 0);
+            if (data.stage_message) setStageMessage(data.stage_message);
             break;
 
           case "job_processing":
@@ -77,6 +84,7 @@ export function LiveApplicationFeed({
             });
             setCurrentIndex(data.current_index || 0);
             setTotalJobs(data.total_jobs || totalJobs);
+            if (data.stage_message) setStageMessage(data.stage_message);
             // Add to applications as processing - use job.id as job_id
             const jobId = data.job?.id || data.job?.job_id || `job-${Date.now()}`;
             setApplications((prev) => {
@@ -103,14 +111,13 @@ export function LiveApplicationFeed({
             console.log("[SSE] Application result:", data);
             setCurrentIndex(data.current_index || currentIndex);
             setTotalJobs(data.total_jobs || totalJobs);
-            setTotalSubmitted(data.total_submitted || 0);
-            setTotalFailed(data.total_failed || 0);
+            if (data.stage_message) setStageMessage(data.stage_message);
             
             // Get the job_id from the application result
             const resultJobId = data.application?.job_id;
             console.log("[SSE] Updating job_id:", resultJobId, "with status:", data.status);
             
-            // Update application status
+            // Update application status and count submitted/failed from applications array
             setApplications((prev) => {
               const updated = prev.map((app): LiveApplication => {
                 if (app.job_id === resultJobId) {
@@ -126,6 +133,13 @@ export function LiveApplicationFeed({
                 return app;
               });
               console.log("[SSE] Applications after update:", updated);
+              
+              // Count submitted and failed from the updated applications array
+              const submittedCount = updated.filter(a => a.status === "submitted").length;
+              const failedCount = updated.filter(a => a.status === "failed").length;
+              setTotalSubmitted(submittedCount);
+              setTotalFailed(failedCount);
+              
               return updated;
             });
             setCurrentJob(null);
@@ -134,6 +148,7 @@ export function LiveApplicationFeed({
           case "job_skipped":
             setCurrentIndex(data.current_index || currentIndex);
             setTotalJobs(data.total_jobs || totalJobs);
+            if (data.stage_message) setStageMessage(data.stage_message);
             // Update last processing app to skipped
             setApplications((prev) => {
               const lastProcessing = [...prev].reverse().find((a) => a.status === "processing");
@@ -151,6 +166,7 @@ export function LiveApplicationFeed({
             setWorkflowStatus("completed");
             setTotalSubmitted(data.total_submitted || 0);
             setTotalFailed(data.total_failed || 0);
+            setStageMessage("🎉 Workflow completed!");
             onWorkflowEnd();
             break;
 
@@ -224,6 +240,15 @@ export function LiveApplicationFeed({
           </div>
         )}
 
+        {/* Live Stage Message */}
+        {isRunning && (
+          <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg border border-blue-200 dark:border-blue-700">
+            <p className="text-lg font-medium text-blue-800 dark:text-blue-200 animate-pulse">
+              {stageMessage}
+            </p>
+          </div>
+        )}
+
         {/* Progress Bar */}
         <div className="space-y-2">
           <div className="flex justify-between text-sm text-gray-500">
@@ -252,19 +277,6 @@ export function LiveApplicationFeed({
             <p className="text-xs text-gray-500">Remaining</p>
           </div>
         </div>
-
-        {/* Current Job Being Processed */}
-        {currentJob && (
-          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 animate-pulse">
-            <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
-              Currently Processing...
-            </p>
-            <p className="text-lg font-semibold text-blue-900 dark:text-blue-100">
-              {currentJob.title}
-            </p>
-            <p className="text-sm text-blue-600 dark:text-blue-400">{currentJob.company}</p>
-          </div>
-        )}
       </Card>
 
       {/* Applications List */}
