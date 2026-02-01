@@ -108,6 +108,7 @@ func SetupRouter(config Config) *gin.Engine {
 			applications.GET("/:id", appHandler.GetApplication)
 			applications.GET("/:id/receipt", appHandler.GetApplicationReceipt)
 			applications.PATCH("/:id/status", appHandler.UpdateApplicationStatus)
+			applications.DELETE("/clear", appHandler.ClearAllApplications)
 		}
 
 		// Stats endpoint

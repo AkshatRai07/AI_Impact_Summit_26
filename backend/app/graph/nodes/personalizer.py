@@ -75,6 +75,8 @@ async def personalize_node(state: AgentState) -> dict:
     Uses bullet_bank and proof_pack for grounding - NEVER invents.
     """
     
+    print("[PERSONALIZE] Starting personalization...")
+    
     job_queue = state.get("job_queue", [])
     current_index = state.get("current_job_index", 0)
     student_profile = state.get("student_profile", {})
@@ -82,7 +84,10 @@ async def personalize_node(state: AgentState) -> dict:
     proof_pack = state.get("proof_pack", [])
     answer_library = state.get("answer_library", {})
     
+    print(f"[PERSONALIZE] Job queue length: {len(job_queue)}, current index: {current_index}")
+    
     if current_index >= len(job_queue):
+        print("[PERSONALIZE] No more jobs in queue")
         return {"errors": ["No more jobs in queue"]}
     
     current_job = job_queue[current_index]

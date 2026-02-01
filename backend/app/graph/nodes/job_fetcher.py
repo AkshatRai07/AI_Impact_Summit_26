@@ -2,9 +2,13 @@
 from app.tools.sandbox_api import SandboxAPIClient
 from app.graph.state import AgentState
 from app.db.tracker import ApplicationTracker
+from app.core.embeddings import get_embedding_service
+from typing import Optional
+import numpy as np
 
 sandbox_client = SandboxAPIClient()
 tracker = ApplicationTracker()
+embedding_service = get_embedding_service()
 
 
 def calculate_match_score(job: dict, profile: dict, policy: dict) -> tuple[float, str]:
@@ -126,7 +130,12 @@ def calculate_match_score(job: dict, profile: dict, policy: dict) -> tuple[float
 
 
 async def fetch_jobs_node(state: AgentState) -> dict:
-    """Fetch jobs from sandbox, deduplicate, and rank them with explanations"""
+    """Fetch jobs from sandbox, deduplicate, and rank them using HYBRID scoring:
+    - Semantic similarity via embeddings (60% weight)
+    - Rule-based matching (40% weight)
+    """
+    
+    print("[FETCH_JOBS] Starting job fetch with VECTOR SIMILARITY ranking...")
     
     student_profile = state.get("student_profile", {})
     policy = state.get("apply_policy", {})
@@ -137,8 +146,10 @@ async def fetch_jobs_node(state: AgentState) -> dict:
     # Fetch jobs from sandbox
     try:
         jobs = await sandbox_client.fetch_jobs()
+        print(f"[FETCH_JOBS] Fetched {len(jobs)} jobs from sandbox")
         logs.append(f"📥 Fetched {len(jobs)} jobs from sandbox")
     except Exception as e:
+        print(f"[FETCH_JOBS ERROR] Failed to fetch jobs: {str(e)}")
         return {
             "errors": [f"Failed to fetch jobs: {str(e)}"],
             "job_queue": [],
@@ -154,8 +165,24 @@ async def fetch_jobs_node(state: AgentState) -> dict:
     except:
         pass
     
+    # Pre-compute profile embedding once for efficiency
+    logs.append("🧠 Generating profile embedding for semantic matching...")
+    print("[FETCH_JOBS] Generating profile embedding...")
+    
+    try:
+        profile_text = embedding_service.profile_to_text(student_profile)
+        profile_embedding = await embedding_service.get_embedding(profile_text)
+        logs.append("✅ Profile embedding ready - using vector similarity!")
+        use_embeddings = True
+    except Exception as e:
+        print(f"[FETCH_JOBS] Embedding failed, falling back to rule-based: {e}")
+        logs.append(f"⚠️ Embedding unavailable, using rule-based matching")
+        profile_embedding = None
+        use_embeddings = False
+    
     # Filter and rank
     ranked_jobs = []
+    
     for job in jobs:
         job_id = str(job.get("id", ""))
         
@@ -164,19 +191,49 @@ async def fetch_jobs_node(state: AgentState) -> dict:
             logs.append(f"⏭️ Skipping {job.get('title', 'Unknown')} - already applied")
             continue
         
-        # Calculate match score with explanation
-        score, explanation = calculate_match_score(job, student_profile, policy)
+        # Check policy blocks first (cheap check)
+        company = job.get("company", "")
+        job_title = job.get("title", "").lower()
+        
+        blocked_companies = [c.lower() for c in policy.get("blocked_companies", [])]
+        if company.lower() in blocked_companies:
+            logs.append(f"🚫 Blocked: {job.get('title')} (company blocked)")
+            continue
+            
+        blocked_roles = [r.lower() for r in policy.get("blocked_role_types", [])]
+        is_blocked_role = any(blocked in job_title for blocked in blocked_roles)
+        if is_blocked_role:
+            logs.append(f"🚫 Blocked: {job.get('title')} (role type blocked)")
+            continue
+        
+        # HYBRID SCORING: Combine semantic + rule-based
+        if use_embeddings:
+            # Semantic score (60% weight)
+            semantic_score, semantic_reason = await embedding_service.compute_match_score(
+                student_profile, job, profile_embedding
+            )
+            
+            # Rule-based score (40% weight)
+            rule_score, rule_reason = calculate_match_score(job, student_profile, policy)
+            
+            # Combined score
+            combined_score = (semantic_score * 0.6) + (rule_score * 0.4)
+            explanation = f"{semantic_reason} | {rule_reason}"
+        else:
+            # Fallback to pure rule-based
+            combined_score, explanation = calculate_match_score(job, student_profile, policy)
         
         # Check minimum threshold
         min_threshold = policy.get("min_match_threshold", 30)
-        if score < min_threshold:
-            logs.append(f"⏭️ Skipping {job.get('title', 'Unknown')} - score {score} below threshold {min_threshold}")
+        if combined_score < min_threshold:
+            logs.append(f"⏭️ Skipping {job.get('title', 'Unknown')} - score {combined_score:.1f} below threshold {min_threshold}")
             continue
         
         job_with_score = {
             **job,
-            "match_score": score,
-            "match_reasoning": explanation
+            "match_score": combined_score,
+            "match_reasoning": explanation,
+            "semantic_match": use_embeddings
         }
         ranked_jobs.append(job_with_score)
     
@@ -187,7 +244,13 @@ async def fetch_jobs_node(state: AgentState) -> dict:
     max_per_day = policy.get("max_applications_per_day", 50)
     ranked_jobs = ranked_jobs[:max_per_day]
     
-    logs.append(f"✅ Apply Queue ready: {len(ranked_jobs)} jobs to apply")
+    # Log top matches
+    if ranked_jobs:
+        top_job = ranked_jobs[0]
+        logs.append(f"🏆 Top match: {top_job.get('title')} (score: {top_job.get('match_score', 0):.1f})")
+    
+    logs.append(f"✅ Apply Queue ready: {len(ranked_jobs)} jobs ranked by semantic similarity")
+    print(f"[FETCH_JOBS] Final queue: {len(ranked_jobs)} jobs after filtering")
     
     return {
         "job_queue": ranked_jobs,

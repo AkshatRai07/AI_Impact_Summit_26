@@ -1,8 +1,10 @@
 # filepath: backend/app/api/deps.py
 import json
+import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.db.supabase import supabase
+from app.core.config import settings
 from typing import List, Optional
 from fastapi import WebSocket
 
@@ -48,23 +50,31 @@ security = HTTPBearer(auto_error=False)  # Don't auto-error for optional auth
 
 
 async def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)):
-    """Get current user - returns None if not authenticated (for hackathon flexibility)"""
+    """Get current user from JWT token"""
     if not credentials:
-        return None
-    
-    if not supabase:
         raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Authentication service not configured"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
         )
     
     token = credentials.credentials
     try:
-        user = supabase.auth.get_user(token)
-        if not user:
+        # Decode our custom JWT token
+        payload = jwt.decode(token, settings.JWT_SECRET, algorithms=["HS256"])
+        user_id = payload.get("sub")
+        email = payload.get("email")
+        
+        if not user_id or not email:
             raise HTTPException(status_code=401, detail="Invalid token")
-        return user.user
-    except Exception as e:
+        
+        # Return a simple user object
+        return {"id": user_id, "email": email}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+        )
+    except jwt.InvalidTokenError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
@@ -73,11 +83,15 @@ async def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] =
 
 async def get_current_user_optional(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)):
     """Optional authentication - returns None if not authenticated"""
-    if not credentials or not supabase:
+    if not credentials:
         return None
     
     try:
-        user = supabase.auth.get_user(credentials.credentials)
-        return user.user if user else None
+        payload = jwt.decode(credentials.credentials, settings.JWT_SECRET, algorithms=["HS256"])
+        user_id = payload.get("sub")
+        email = payload.get("email")
+        if user_id and email:
+            return {"id": user_id, "email": email}
+        return None
     except:
         return None

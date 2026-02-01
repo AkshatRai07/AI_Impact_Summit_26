@@ -222,3 +222,17 @@ func (s *ApplicationStore) GetStats() map[string]int {
 
 	return stats
 }
+
+// ClearAll removes all applications (for testing)
+func (s *ApplicationStore) ClearAll() int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	count := len(s.applications)
+	s.applications = make(map[string]*models.Application)
+	s.applicationIDs = make([]string, 0)
+	s.byJobID = make(map[string][]string)
+	s.byApplicantEmail = make(map[string][]string)
+
+	return count
+}

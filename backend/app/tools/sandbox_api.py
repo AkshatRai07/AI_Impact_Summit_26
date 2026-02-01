@@ -97,3 +97,15 @@ class SandboxAPIClient:
                 return response.status_code == 200
             except:
                 return False
+    
+    async def clear_applications(self) -> dict:
+        """Clear all applications in sandbox (for testing)"""
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            try:
+                response = await client.delete(f"{self.base_url}/api/applications/clear")
+                response.raise_for_status()
+                return response.json()
+            except httpx.HTTPStatusError as e:
+                raise Exception(f"Failed to clear applications: {e.response.status_code}")
+            except httpx.RequestError as e:
+                raise Exception(f"Connection error: {str(e)}")

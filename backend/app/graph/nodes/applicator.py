@@ -104,6 +104,31 @@ async def apply_node(state: AgentState) -> dict:
         except Exception as e:
             last_error = str(e)
             
+            # Check if it's a duplicate application (already applied)
+            if "duplicate" in last_error.lower() or "already applied" in last_error.lower() or "409" in last_error:
+                # Mark as already applied, not failed
+                already_applied_record = {
+                    "job_id": job_id,
+                    "job_title": job_title,
+                    "company": company,
+                    "status": "already_applied",
+                    "confirmation_id": None,
+                    "submitted_at": datetime.utcnow().isoformat(),
+                    "error_message": "Already applied to this job",
+                    "retry_count": 0,
+                    "tailored_resume": tailored_resume,
+                    "cover_letter": cover_letter,
+                    "evidence_mapping": evidence_mapping
+                }
+                
+                tracker.add_application(user_id, already_applied_record)
+                
+                return {
+                    "applications_submitted": [already_applied_record],
+                    "current_job_index": current_index + 1,
+                    "logs": [f"⏭️ Already applied to {job_title} at {company}, skipping"]
+                }
+            
             # Check if rate limited
             if "rate" in last_error.lower() or "429" in last_error:
                 await asyncio.sleep(RETRY_DELAY * (attempt + 1))
@@ -163,12 +188,18 @@ def build_resume_text(profile: dict, tailored: dict) -> str:
     if summary:
         lines.extend(["SUMMARY", summary, ""])
     
-    # Skills
-    skills = profile.get("skills", {})
+    # Skills - handle both list and dict formats
+    skills = profile.get("skills", [])
     skills_to_highlight = tailored.get("skills_to_highlight", [])
     all_skills = []
-    for category in ["languages", "frameworks", "tools", "other"]:
-        all_skills.extend(skills.get(category, []))
+    
+    if isinstance(skills, dict):
+        # Dict format: {"languages": [...], "frameworks": [...], ...}
+        for category in ["languages", "frameworks", "tools", "other"]:
+            all_skills.extend(skills.get(category, []))
+    elif isinstance(skills, list):
+        # List format: ["Python", "JavaScript", ...]
+        all_skills = skills
     
     # Prioritize highlighted skills
     if skills_to_highlight:

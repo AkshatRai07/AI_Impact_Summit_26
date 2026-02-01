@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     # Google AI (Gemini) - ADD THIS
     GOOGLE_API_KEY: Optional[str] = None
     
+    # JWT Secret for simple auth
+    JWT_SECRET: str = "hackathon-secret-key-change-in-production"
+    
     # Sandbox - Go server at localhost:8080
     SANDBOX_API_URL: str = "http://localhost:8080"
     SANDBOX_URL: str = "http://localhost:8080"

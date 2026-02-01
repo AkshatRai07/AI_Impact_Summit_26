@@ -326,3 +326,14 @@ func getStatusMessage(status models.ApplicationStatus) string {
 	}
 	return "Application status: " + string(status)
 }
+
+// ClearAllApplications handles DELETE /api/applications/clear
+// Clears all applications (for testing purposes)
+func (h *ApplicationHandler) ClearAllApplications(c *gin.Context) {
+	count := h.appStore.ClearAll()
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "All applications cleared",
+		"cleared": count,
+	})
+}

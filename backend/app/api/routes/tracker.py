@@ -77,8 +77,19 @@ async def retry_application(user_id: str, job_id: str):
 @router.delete("/applications/{user_id}")
 async def clear_applications(user_id: str):
     """Clear all applications for a user (for testing)"""
+    from app.tools.sandbox_api import SandboxAPIClient
+    sandbox_client = SandboxAPIClient()
+    
     try:
+        # Clear from local tracker
         tracker.clear_user_applications(user_id)
-        return {"success": True, "message": "Applications cleared"}
+        
+        # Also clear from sandbox
+        try:
+            await sandbox_client.clear_applications()
+        except Exception as e:
+            print(f"Warning: Could not clear sandbox applications: {e}")
+        
+        return {"success": True, "message": "Applications cleared from tracker and sandbox"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
