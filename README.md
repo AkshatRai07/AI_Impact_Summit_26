@@ -76,7 +76,7 @@
 │  │                        LangGraph Workflow                           │    │
 │  │                                                                     │    │
 │  │  ┌──────────┐   ┌─────────────┐   ┌──────────────┐   ┌──────────┐   │    │
-│  │  │  Fetch   │──▶│ Personalize │──▶│  Map Evidence│──▶│  Safety  │   │    │
+│  │  │  Fetch   │─▶│ Personalize │─▶│  Map Evidence│─▶│  Safety  │   │    │
 │  │  │  Jobs    │   │   (LLM)     │   │   (Ground)   │   │  Check   │   │    │
 │  │  └──────────┘   └─────────────┘   └──────────────┘   └────┬─────┘   │    │
 │  │       │                                                   │         │    │
