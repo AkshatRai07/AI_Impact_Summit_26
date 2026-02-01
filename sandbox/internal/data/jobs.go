@@ -1,7 +1,7 @@
 package data
 
 import (
-	"github.com/AkshatRai07/ImpactSummitPrivate/internal/models"
+	"github.com/AkshatRai07/AI_Impact_Summit_26/internal/models"
 )
 
 // GetSeedJobs returns a comprehensive list of realistic job postings

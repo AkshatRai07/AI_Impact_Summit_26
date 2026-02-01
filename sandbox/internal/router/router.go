@@ -3,9 +3,9 @@ package router
 import (
 	"time"
 
-	"github.com/AkshatRai07/ImpactSummitPrivate/internal/handlers"
-	"github.com/AkshatRai07/ImpactSummitPrivate/internal/middleware"
-	"github.com/AkshatRai07/ImpactSummitPrivate/internal/store"
+	"github.com/AkshatRai07/AI_Impact_Summit_26/internal/handlers"
+	"github.com/AkshatRai07/AI_Impact_Summit_26/internal/middleware"
+	"github.com/AkshatRai07/AI_Impact_Summit_26/internal/store"
 	"github.com/gin-gonic/gin"
 )
 

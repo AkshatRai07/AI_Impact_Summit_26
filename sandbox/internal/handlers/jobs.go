@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/AkshatRai07/ImpactSummitPrivate/internal/models"
-	"github.com/AkshatRai07/ImpactSummitPrivate/internal/store"
+	"github.com/AkshatRai07/AI_Impact_Summit_26/internal/models"
+	"github.com/AkshatRai07/AI_Impact_Summit_26/internal/store"
 	"github.com/gin-gonic/gin"
 )
 

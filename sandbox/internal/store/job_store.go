@@ -3,8 +3,8 @@ package store
 import (
 	"sync"
 
-	"github.com/AkshatRai07/ImpactSummitPrivate/internal/data"
-	"github.com/AkshatRai07/ImpactSummitPrivate/internal/models"
+	"github.com/AkshatRai07/AI_Impact_Summit_26/internal/data"
+	"github.com/AkshatRai07/AI_Impact_Summit_26/internal/models"
 )
 
 // JobStore manages the in-memory job data
