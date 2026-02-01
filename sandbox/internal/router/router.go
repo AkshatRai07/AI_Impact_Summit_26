@@ -1,6 +1,7 @@
 package router
 
 import (
+	"io/fs"
 	"time"
 
 	"github.com/AkshatRai07/AI_Impact_Summit_26/internal/handlers"
@@ -23,6 +24,8 @@ type Config struct {
 	GeneralRateLimit int
 	// ApplicationRateLimit is the rate limit for application submissions (requests per minute)
 	ApplicationRateLimit int
+	// TemplatesFS is the filesystem for templates (optional, for frontend)
+	TemplatesFS fs.FS
 }
 
 // DefaultConfig returns the default router configuration
@@ -34,6 +37,7 @@ func DefaultConfig() Config {
 		TimeoutRate:             0.02, // 2% timeout rate
 		GeneralRateLimit:        100,  // 100 requests per minute
 		ApplicationRateLimit:    30,   // 30 applications per minute
+		TemplatesFS:             nil,
 	}
 }
 
@@ -108,6 +112,31 @@ func SetupRouter(config Config) *gin.Engine {
 
 		// Stats endpoint
 		api.GET("/stats", healthHandler.GetStats)
+	}
+
+	// Frontend page routes (if templates are provided)
+	if config.TemplatesFS != nil {
+		pageHandler, err := handlers.NewPageHandler(jobStore, appStore, config.TemplatesFS)
+		if err != nil {
+			panic("Failed to initialize page handler: " + err.Error())
+		}
+
+		// Home page (job listings)
+		router.GET("/", pageHandler.HomePage)
+		router.GET("/jobs", pageHandler.HomePage)
+
+		// Job detail page
+		router.GET("/jobs/:id", pageHandler.JobDetailPage)
+
+		// Apply page
+		router.GET("/jobs/:id/apply", pageHandler.ApplyPage)
+
+		// Application routes
+		router.GET("/applications", pageHandler.MyApplicationsPage)
+		router.GET("/applications/:id", pageHandler.ApplicationDetailPage)
+		router.GET("/applications/:id/success", pageHandler.ApplicationSuccessPage)
+		router.GET("/my-applications", pageHandler.MyApplicationsPage)
+		router.GET("/lookup", pageHandler.ApplicationLookup)
 	}
 
 	return router

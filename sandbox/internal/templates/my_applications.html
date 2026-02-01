@@ -1,0 +1,99 @@
+{{define "content"}}
+<div class="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <h1 class="text-2xl font-bold text-gray-900 mb-6">
+        <i class="fas fa-file-alt text-primary mr-2"></i>My Applications
+    </h1>
+
+    {{if .Applications}}
+    <div class="space-y-4">
+        {{range .Applications}}
+        <div class="bg-white rounded-xl border p-6 hover:border-primary/30 transition">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-start space-x-4">
+                    <div class="w-12 h-12 bg-linear-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold shrink-0">
+                        {{slice .Company 0 1}}
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">{{.JobTitle}}</h3>
+                        <p class="text-gray-600">{{.Company}}</p>
+                        <div class="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                            <span><i class="fas fa-clock mr-1"></i>{{.SubmittedAt}}</span>
+                            <span class="font-mono text-xs">{{.ConfirmationID}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    {{if eq (printf "%s" .Status) "received"}}
+                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                        <i class="fas fa-inbox mr-1"></i>Received
+                    </span>
+                    {{else if eq (printf "%s" .Status) "reviewing"}}
+                    <span class="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
+                        <i class="fas fa-search mr-1"></i>Reviewing
+                    </span>
+                    {{else if eq (printf "%s" .Status) "shortlisted"}}
+                    <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                        <i class="fas fa-star mr-1"></i>Shortlisted
+                    </span>
+                    {{else if eq (printf "%s" .Status) "rejected"}}
+                    <span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-medium">
+                        <i class="fas fa-times mr-1"></i>Not Selected
+                    </span>
+                    {{else}}
+                    <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                        {{.Status}}
+                    </span>
+                    {{end}}
+                    <a href="/applications/{{.ConfirmationID}}" 
+                       class="px-4 py-2 border border-gray-300 text-gray-700 hover:border-primary hover:text-primary rounded-lg font-medium transition">
+                        View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+        {{end}}
+    </div>
+    {{else}}
+    <div class="bg-white rounded-xl border p-16 text-center">
+        <div class="text-6xl mb-4">📄</div>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">No applications yet</h3>
+        <p class="text-gray-600 mb-6">Start applying to jobs to see your applications here</p>
+        <a href="/" class="inline-flex px-6 py-3 bg-primary hover:bg-secondary text-white rounded-lg font-medium transition">
+            <i class="fas fa-search mr-2"></i>Browse Jobs
+        </a>
+    </div>
+    {{end}}
+
+    <!-- Lookup Form -->
+    <div class="mt-12 bg-gray-50 rounded-xl p-6">
+        <h2 class="font-semibold text-gray-900 mb-4">
+            <i class="fas fa-search text-primary mr-2"></i>Look Up Application
+        </h2>
+        <form action="/applications/lookup" method="GET" class="flex gap-4">
+            <input type="text" name="id" required
+                   class="flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+                   placeholder="Enter confirmation ID or application ID">
+            <button type="submit" 
+                    class="px-6 py-3 bg-primary hover:bg-secondary text-white rounded-lg font-medium transition">
+                Look Up
+            </button>
+        </form>
+    </div>
+
+    <!-- Filter by Email -->
+    <div class="mt-6 bg-gray-50 rounded-xl p-6">
+        <h2 class="font-semibold text-gray-900 mb-4">
+            <i class="fas fa-envelope text-primary mr-2"></i>Find by Email
+        </h2>
+        <form action="/my-applications" method="GET" class="flex gap-4">
+            <input type="email" name="email" required value="{{.Email}}"
+                   class="flex-1 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+                   placeholder="Enter your email address">
+            <button type="submit" 
+                    class="px-6 py-3 bg-primary hover:bg-secondary text-white rounded-lg font-medium transition">
+                Find Applications
+            </button>
+        </form>
+    </div>
+</div>
+{{end}}

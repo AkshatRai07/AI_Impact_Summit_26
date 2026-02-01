@@ -1,0 +1,121 @@
+{{define "content"}}
+<div class="max-w-2xl mx-auto px-4 py-16 sm:px-6 lg:px-8 text-center">
+    <!-- Success Animation -->
+    <div class="mb-8">
+        <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+            <i class="fas fa-check text-green-600 text-4xl"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Application Submitted!</h1>
+        <p class="text-gray-600">Your application has been successfully sent to {{.Application.Company}}</p>
+    </div>
+
+    <!-- Confirmation Card -->
+    <div class="bg-white rounded-xl border p-8 mb-8 text-left">
+        <div class="flex items-center justify-between mb-6 pb-6 border-b">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-900">{{.Application.JobTitle}}</h2>
+                <p class="text-gray-600">{{.Application.Company}}</p>
+            </div>
+            <div class="px-4 py-2 bg-green-100 text-green-700 rounded-full font-medium">
+                <i class="fas fa-check-circle mr-1"></i>{{.Application.Status}}
+            </div>
+        </div>
+
+        <!-- Confirmation Details -->
+        <div class="space-y-4">
+            <div class="flex justify-between py-3 border-b">
+                <span class="text-gray-500">Confirmation ID</span>
+                <span class="font-mono font-medium text-gray-900">{{.Application.ConfirmationID}}</span>
+            </div>
+            <div class="flex justify-between py-3 border-b">
+                <span class="text-gray-500">Application ID</span>
+                <span class="font-mono font-medium text-gray-900">{{.Application.ApplicationID}}</span>
+            </div>
+            <div class="flex justify-between py-3 border-b">
+                <span class="text-gray-500">Applicant</span>
+                <span class="font-medium text-gray-900">{{.Application.ApplicantName}}</span>
+            </div>
+            <div class="flex justify-between py-3 border-b">
+                <span class="text-gray-500">Email</span>
+                <span class="font-medium text-gray-900">{{.Application.ApplicantEmail}}</span>
+            </div>
+            <div class="flex justify-between py-3 border-b">
+                <span class="text-gray-500">Submitted</span>
+                <span class="font-medium text-gray-900">{{.SubmittedAt}}</span>
+            </div>
+            <div class="flex justify-between py-3">
+                <span class="text-gray-500">Job ID</span>
+                <span class="font-mono text-gray-900">{{.Application.JobID}}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receipt Notice -->
+    <div class="bg-blue-50 rounded-xl p-6 mb-8 text-left">
+        <div class="flex items-start space-x-3">
+            <i class="fas fa-info-circle text-blue-600 mt-1"></i>
+            <div>
+                <h3 class="font-semibold text-blue-900">Save Your Confirmation</h3>
+                <p class="text-blue-700 text-sm mt-1">
+                    Please save your confirmation ID: <strong>{{.Application.ConfirmationID}}</strong>
+                    <br>You can use this to track your application status.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- What's Next -->
+    <div class="bg-white rounded-xl border p-6 mb-8 text-left">
+        <h3 class="font-semibold text-gray-900 mb-4">
+            <i class="fas fa-road text-primary mr-2"></i>What happens next?
+        </h3>
+        <div class="space-y-4">
+            <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center shrink-0">
+                    <i class="fas fa-check text-green-600 text-sm"></i>
+                </div>
+                <div>
+                    <p class="font-medium text-gray-900">Application Received</p>
+                    <p class="text-sm text-gray-500">Your application is in our system</p>
+                </div>
+            </div>
+            <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center shrink-0">
+                    <span class="text-gray-600 text-sm font-medium">2</span>
+                </div>
+                <div>
+                    <p class="font-medium text-gray-900">Review Process</p>
+                    <p class="text-sm text-gray-500">Our team will review your application</p>
+                </div>
+            </div>
+            <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center shrink-0">
+                    <span class="text-gray-600 text-sm font-medium">3</span>
+                </div>
+                <div>
+                    <p class="font-medium text-gray-900">We'll Be In Touch</p>
+                    <p class="text-sm text-gray-500">You'll hear from us via email</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/applications/{{.Application.ConfirmationID}}" 
+           class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition">
+            <i class="fas fa-eye mr-2"></i>View Application
+        </a>
+        <a href="/" 
+           class="px-6 py-3 bg-primary hover:bg-secondary text-white rounded-lg font-medium transition">
+            <i class="fas fa-search mr-2"></i>Browse More Jobs
+        </a>
+    </div>
+
+    <!-- API Receipt Link -->
+    <p class="mt-8 text-sm text-gray-500">
+        <i class="fas fa-code mr-1"></i>
+        API Receipt: <a href="/api/applications/{{.Application.ConfirmationID}}/receipt" class="text-primary hover:underline">/api/applications/{{.Application.ConfirmationID}}/receipt</a>
+    </p>
+</div>
+{{end}}

@@ -1,0 +1,260 @@
+{{define "content"}}
+<div class="max-w-3xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 text-sm">
+        <a href="/" class="text-gray-500 hover:text-primary">Jobs</a>
+        <span class="mx-2 text-gray-400">/</span>
+        <a href="/jobs/{{.Job.ID}}" class="text-gray-500 hover:text-primary">{{.Job.Title}}</a>
+        <span class="mx-2 text-gray-400">/</span>
+        <span class="text-gray-900">Apply</span>
+    </nav>
+
+    <!-- Job Summary -->
+    <div class="bg-linear-to-r from-blue-600 to-purple-700 rounded-xl p-6 text-white mb-6">
+        <div class="flex items-center space-x-4">
+            <div class="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center text-2xl font-bold">
+                {{slice .Job.Company 0 1}}
+            </div>
+            <div>
+                <h1 class="text-xl font-bold">{{.Job.Title}}</h1>
+                <p class="text-blue-100">{{.Job.Company}} • {{.Job.Location}}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Form -->
+    <form action="/jobs/{{.Job.ID}}/apply" method="POST" class="space-y-6" id="applicationForm">
+        <!-- Personal Information -->
+        <div class="bg-white rounded-xl border p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-6">
+                <i class="fas fa-user text-primary mr-2"></i>Personal Information
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Full Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="applicant_name" required
+                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+                           placeholder="John Doe">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Email Address <span class="text-red-500">*</span>
+                    </label>
+                    <input type="email" name="applicant_email" required
+                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+                           placeholder="john@example.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Phone Number
+                    </label>
+                    <input type="tel" name="phone"
+                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+                           placeholder="+1 (555) 000-0000">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        LinkedIn Profile
+                    </label>
+                    <input type="url" name="linkedin"
+                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+                           placeholder="https://linkedin.com/in/johndoe">
+                </div>
+            </div>
+        </div>
+
+        <!-- Links -->
+        <div class="bg-white rounded-xl border p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-6">
+                <i class="fas fa-link text-primary mr-2"></i>Profile Links
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Portfolio Website
+                    </label>
+                    <input type="url" name="portfolio"
+                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+                           placeholder="https://johndoe.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        GitHub Profile
+                    </label>
+                    <input type="url" name="github"
+                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+                           placeholder="https://github.com/johndoe">
+                </div>
+            </div>
+        </div>
+
+        <!-- Resume -->
+        <div class="bg-white rounded-xl border p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-6">
+                <i class="fas fa-file-alt text-primary mr-2"></i>Resume <span class="text-red-500">*</span>
+            </h2>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Paste your resume content below
+                </label>
+                <textarea name="resume" required rows="10"
+                          class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition font-mono text-sm"
+                          placeholder="Paste your resume text here...
+
+JOHN DOE
+john@example.com | (555) 000-0000
+
+EDUCATION
+Bachelor of Science in Computer Science
+University Name, 2024
+
+EXPERIENCE
+Software Engineer Intern
+Company Name, Summer 2023
+• Built features that improved user engagement by 20%
+• Collaborated with cross-functional teams
+
+SKILLS
+Python, JavaScript, React, Node.js, SQL"></textarea>
+                <p class="text-xs text-gray-500 mt-2">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Paste your resume as plain text. Include your education, experience, skills, and projects.
+                </p>
+            </div>
+        </div>
+
+        <!-- Cover Letter -->
+        <div class="bg-white rounded-xl border p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-6">
+                <i class="fas fa-envelope text-primary mr-2"></i>Cover Letter
+            </h2>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Write a brief cover letter (optional but recommended)
+                </label>
+                <textarea name="cover_letter" rows="6"
+                          class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+                          placeholder="Dear Hiring Manager,
+
+I am excited to apply for the {{.Job.Title}} position at {{.Job.Company}}..."></textarea>
+            </div>
+        </div>
+
+        <!-- Additional Questions -->
+        <div class="bg-white rounded-xl border p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-6">
+                <i class="fas fa-question-circle text-primary mr-2"></i>Additional Questions
+            </h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Are you authorized to work in the job location?
+                    </label>
+                    <select name="work_authorization" 
+                            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
+                        <option value="">Select an option</option>
+                        <option value="authorized">Yes, I am authorized</option>
+                        <option value="need_sponsorship">No, I will need sponsorship</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        What is your earliest start date?
+                    </label>
+                    <input type="text" name="start_date"
+                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+                           placeholder="e.g., Immediately, 2 weeks, June 2026">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Salary Expectation (optional)
+                    </label>
+                    <input type="text" name="salary_expectation"
+                           class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition"
+                           placeholder="e.g., $80,000 - $100,000">
+                </div>
+
+                {{if or .Job.IsRemote .Job.Remote}}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Remote Work Preference
+                    </label>
+                    <select name="remote_preference"
+                            class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition">
+                        <option value="">Select an option</option>
+                        <option value="fully_remote">Fully Remote</option>
+                        <option value="hybrid">Hybrid</option>
+                        <option value="onsite">On-site</option>
+                        <option value="flexible">Flexible</option>
+                    </select>
+                </div>
+                {{end}}
+            </div>
+        </div>
+
+        <!-- Hidden job_id field -->
+        <input type="hidden" name="job_id" value="{{.Job.ID}}">
+
+        <!-- Submit -->
+        <div class="bg-white rounded-xl border p-6">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-gray-500">
+                    <i class="fas fa-lock mr-1"></i>
+                    Your information is secure and will only be shared with {{.Job.Company}}.
+                </p>
+                <div class="flex gap-3 w-full md:w-auto">
+                    <a href="/jobs/{{.Job.ID}}" 
+                       class="flex-1 md:flex-none px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition text-center">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="flex-1 md:flex-none px-8 py-3 bg-primary hover:bg-secondary text-white rounded-lg font-semibold transition">
+                        <i class="fas fa-paper-plane mr-2"></i>Submit Application
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+document.getElementById('applicationForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = {};
+    formData.forEach((value, key) => data[key] = value);
+    
+    // Submit via API
+    fetch('/api/applications', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            window.location.href = '/applications/' + result.confirmation_id + '/success';
+        } else {
+            alert('Error: ' + (result.message || result.error || 'Failed to submit application'));
+        }
+    })
+    .catch(error => {
+        alert('Network error. Please try again.');
+        console.error('Error:', error);
+    });
+});
+</script>
+{{end}}

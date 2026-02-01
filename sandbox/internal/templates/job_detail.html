@@ -1,0 +1,204 @@
+{{define "content"}}
+<div class="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 text-sm">
+        <a href="/" class="text-gray-500 hover:text-primary">Jobs</a>
+        <span class="mx-2 text-gray-400">/</span>
+        <span class="text-gray-900">{{.Job.Title}}</span>
+    </nav>
+
+    <!-- Job Header -->
+    <div class="bg-white rounded-xl border p-8 mb-6">
+        <div class="flex items-start justify-between">
+            <div class="flex items-start space-x-4">
+                <div class="w-16 h-16 bg-linear-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-2xl shrink-0">
+                    {{slice .Job.Company 0 1}}
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-900">{{.Job.Title}}</h1>
+                    <p class="text-xl text-gray-600 mt-1">{{.Job.Company}}</p>
+                    <div class="flex flex-wrap items-center gap-3 mt-3">
+                        {{if or .Job.IsRemote .Job.Remote}}
+                        <span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                            <i class="fas fa-home mr-1"></i>Remote
+                        </span>
+                        {{end}}
+                        {{if eq .Job.JobType "internship"}}
+                        <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-medium">
+                            <i class="fas fa-graduation-cap mr-1"></i>Internship
+                        </span>
+                        {{else}}
+                        <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                            <i class="fas fa-briefcase mr-1"></i>{{.Job.JobType}}
+                        </span>
+                        {{end}}
+                    </div>
+                </div>
+            </div>
+            {{if .IsAccepting}}
+            <a href="/jobs/{{.Job.ID}}/apply" 
+               class="hidden md:inline-flex px-6 py-3 bg-primary hover:bg-secondary text-white rounded-lg font-semibold transition">
+                <i class="fas fa-paper-plane mr-2"></i>Apply Now
+            </a>
+            {{else}}
+            <span class="hidden md:inline-flex px-6 py-3 bg-gray-300 text-gray-600 rounded-lg font-semibold cursor-not-allowed">
+                <i class="fas fa-times-circle mr-2"></i>Closed
+            </span>
+            {{end}}
+        </div>
+
+        <!-- Key Details -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 pt-6 border-t">
+            <div>
+                <div class="text-gray-500 text-sm mb-1">Location</div>
+                <div class="font-medium text-gray-900">
+                    <i class="fas fa-map-marker-alt text-primary mr-1"></i>{{.Job.Location}}
+                </div>
+            </div>
+            {{if .Job.Salary}}
+            <div>
+                <div class="text-gray-500 text-sm mb-1">Salary</div>
+                <div class="font-medium text-gray-900">
+                    <i class="fas fa-dollar-sign text-green-600 mr-1"></i>{{.Job.Salary}}
+                </div>
+            </div>
+            {{end}}
+            <div>
+                <div class="text-gray-500 text-sm mb-1">Experience</div>
+                <div class="font-medium text-gray-900">
+                    <i class="fas fa-clock text-blue-600 mr-1"></i>
+                    {{if gt .Job.ExperienceRequired 0}}{{.Job.ExperienceRequired}}+ years{{else}}Entry Level{{end}}
+                </div>
+            </div>
+            {{if .Job.CompanySize}}
+            <div>
+                <div class="text-gray-500 text-sm mb-1">Company Size</div>
+                <div class="font-medium text-gray-900">
+                    <i class="fas fa-users text-purple-600 mr-1"></i>{{.Job.CompanySize}}
+                </div>
+            </div>
+            {{end}}
+        </div>
+
+        <!-- Mobile Apply Button -->
+        {{if .IsAccepting}}
+        <a href="/jobs/{{.Job.ID}}/apply" 
+           class="md:hidden w-full mt-6 px-6 py-3 bg-primary hover:bg-secondary text-white rounded-lg font-semibold transition text-center block">
+            <i class="fas fa-paper-plane mr-2"></i>Apply Now
+        </a>
+        {{end}}
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid md:grid-cols-3 gap-6">
+        <!-- Left Column - Description -->
+        <div class="md:col-span-2 space-y-6">
+            <!-- About the Role -->
+            <div class="bg-white rounded-xl border p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-info-circle text-primary mr-2"></i>About the Role
+                </h2>
+                <p class="text-gray-700 leading-relaxed whitespace-pre-line">{{.Job.Description}}</p>
+            </div>
+
+            <!-- Requirements -->
+            {{if .Job.Requirements}}
+            <div class="bg-white rounded-xl border p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-check-circle text-green-600 mr-2"></i>Requirements
+                </h2>
+                <ul class="space-y-3">
+                    {{range .Job.Requirements}}
+                    <li class="flex items-start">
+                        <i class="fas fa-check text-green-500 mt-1 mr-3"></i>
+                        <span class="text-gray-700">{{.}}</span>
+                    </li>
+                    {{end}}
+                </ul>
+            </div>
+            {{end}}
+
+            <!-- Benefits -->
+            {{if .Job.Benefits}}
+            <div class="bg-white rounded-xl border p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-gift text-purple-600 mr-2"></i>Benefits & Perks
+                </h2>
+                <div class="flex flex-wrap gap-2">
+                    {{range .Job.Benefits}}
+                    <span class="px-3 py-2 bg-purple-50 text-purple-700 rounded-lg text-sm">
+                        <i class="fas fa-star text-purple-400 mr-1"></i>{{.}}
+                    </span>
+                    {{end}}
+                </div>
+            </div>
+            {{end}}
+        </div>
+
+        <!-- Right Column - Sidebar -->
+        <div class="space-y-6">
+            <!-- Apply Card -->
+            <div class="bg-linear-to-br from-blue-600 to-purple-700 rounded-xl p-6 text-white">
+                <h3 class="font-semibold text-lg mb-2">Interested in this role?</h3>
+                <p class="text-blue-100 text-sm mb-4">Submit your application and we'll get back to you.</p>
+                {{if .IsAccepting}}
+                <a href="/jobs/{{.Job.ID}}/apply" 
+                   class="block w-full py-3 bg-white text-primary rounded-lg font-semibold text-center hover:bg-gray-100 transition">
+                    Apply Now
+                </a>
+                {{else}}
+                <div class="block w-full py-3 bg-gray-200 text-gray-500 rounded-lg font-semibold text-center cursor-not-allowed">
+                    Applications Closed
+                </div>
+                {{end}}
+                <p class="text-xs text-blue-200 mt-3 text-center">
+                    <i class="fas fa-users mr-1"></i>{{.ApplicationsCount}} applicants
+                </p>
+            </div>
+
+            <!-- Job Details -->
+            <div class="bg-white rounded-xl border p-6">
+                <h3 class="font-semibold text-gray-900 mb-4">Job Details</h3>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Job ID</span>
+                        <span class="text-gray-900 font-mono">{{.Job.ID}}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Posted</span>
+                        <span class="text-gray-900">{{.PostedDate}}</span>
+                    </div>
+                    {{if .Job.ApplicationDeadline}}
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Deadline</span>
+                        <span class="text-red-600 font-medium">{{.DeadlineDate}}</span>
+                    </div>
+                    {{end}}
+                    {{if .Job.Industry}}
+                    <div class="flex justify-between">
+                        <span class="text-gray-500">Industry</span>
+                        <span class="text-gray-900">{{.Job.Industry}}</span>
+                    </div>
+                    {{end}}
+                </div>
+            </div>
+
+            <!-- Share -->
+            <div class="bg-white rounded-xl border p-6">
+                <h3 class="font-semibold text-gray-900 mb-4">Share this job</h3>
+                <div class="flex space-x-3">
+                    <button class="flex-1 py-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition">
+                        <i class="fab fa-linkedin"></i>
+                    </button>
+                    <button class="flex-1 py-2 bg-blue-100 text-blue-400 rounded-lg hover:bg-blue-200 transition">
+                        <i class="fab fa-twitter"></i>
+                    </button>
+                    <button class="flex-1 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition" onclick="navigator.clipboard.writeText(window.location.href)">
+                        <i class="fas fa-link"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}
