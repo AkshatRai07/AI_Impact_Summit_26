@@ -49,22 +49,25 @@ export function PolicyEditor({ policy, onChange, disabled }: PolicyEditorProps) 
   };
 
   return (
-    <Card>
+    <Card glow>
       <CardHeader
         title="Apply Policy"
         description="Set constraints for autonomous job applications"
         action={
-          <label className="flex items-center gap-2 cursor-pointer">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
+          <label className="flex items-center gap-3 cursor-pointer">
+            <span className="text-sm text-slate-400">
               Enabled
             </span>
-            <input
-              type="checkbox"
-              checked={policy.enabled}
-              onChange={(e) => updatePolicy({ enabled: e.target.checked })}
-              disabled={disabled}
-              className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
+            <div className="relative">
+              <input
+                type="checkbox"
+                checked={policy.enabled}
+                onChange={(e) => updatePolicy({ enabled: e.target.checked })}
+                disabled={disabled}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-slate-700 peer-focus:ring-2 peer-focus:ring-blue-500/50 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-gradient-to-r peer-checked:from-blue-500 peer-checked:to-purple-500"></div>
+            </div>
           </label>
         }
       />
@@ -73,7 +76,7 @@ export function PolicyEditor({ policy, onChange, disabled }: PolicyEditorProps) 
         {/* Application Limits */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-slate-300 mb-2">
               Max Applications per Day
             </label>
             <input
@@ -87,17 +90,17 @@ export function PolicyEditor({ policy, onChange, disabled }: PolicyEditorProps) 
                 })
               }
               disabled={disabled}
-              className="w-full px-3 py-2 border rounded-lg shadow-sm 
-                bg-white dark:bg-gray-900 
-                border-gray-300 dark:border-gray-700 
-                text-gray-900 dark:text-gray-100
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                disabled:opacity-50"
+              className="w-full px-4 py-3 rounded-xl
+                bg-black/40 
+                border border-white/10 
+                text-white
+                focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50
+                disabled:opacity-50 transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-slate-300 mb-2">
               Minimum Match Threshold (%)
             </label>
             <input
@@ -111,12 +114,12 @@ export function PolicyEditor({ policy, onChange, disabled }: PolicyEditorProps) 
                 })
               }
               disabled={disabled}
-              className="w-full px-3 py-2 border rounded-lg shadow-sm 
-                bg-white dark:bg-gray-900 
-                border-gray-300 dark:border-gray-700 
-                text-gray-900 dark:text-gray-100
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
-                disabled:opacity-50"
+              className="w-full px-4 py-3 rounded-xl
+                bg-black/40 
+                border border-white/10 
+                text-white
+                focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50
+                disabled:opacity-50 transition-all"
             />
           </div>
         </div>
@@ -124,7 +127,7 @@ export function PolicyEditor({ policy, onChange, disabled }: PolicyEditorProps) 
         {/* Location Preferences */}
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-slate-300 mb-2">
               Required Location (optional)
             </label>
             <Input
@@ -138,29 +141,39 @@ export function PolicyEditor({ policy, onChange, disabled }: PolicyEditorProps) 
           </div>
 
           <div className="flex items-end">
-            <label className="flex items-center gap-2 cursor-pointer pb-2">
-              <input
-                type="checkbox"
-                checked={policy.require_remote}
-                onChange={(e) =>
-                  updatePolicy({ require_remote: e.target.checked })
-                }
-                disabled={disabled}
-                className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
-              <span className="text-sm text-gray-700 dark:text-gray-300">
+            <label className="flex items-center gap-3 cursor-pointer pb-3">
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  checked={policy.require_remote}
+                  onChange={(e) =>
+                    updatePolicy({ require_remote: e.target.checked })
+                  }
+                  disabled={disabled}
+                  className="sr-only peer"
+                />
+                <div className="w-5 h-5 bg-slate-700 border border-white/10 rounded peer-focus:ring-2 peer-focus:ring-blue-500/50 peer-checked:bg-gradient-to-r peer-checked:from-blue-500 peer-checked:to-purple-500 peer-checked:border-transparent transition-all"></div>
+                <svg className="absolute top-0.5 left-0.5 w-4 h-4 text-white hidden peer-checked:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <span className="text-sm text-slate-300">
                 Remote jobs only
               </span>
             </label>
           </div>
         </div>
+              <span className="text-sm text-gray-700 dark:text-gray-300">
+                Remote jobs only
+              </span>
+          </div>
 
         {/* Blocked Companies */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-medium text-slate-300 mb-2">
             Blocked Companies
           </label>
-          <div className="flex gap-2 mb-2">
+          <div className="flex gap-2 mb-3">
             <Input
               placeholder="Company name"
               value={blockedCompany}
@@ -181,13 +194,13 @@ export function PolicyEditor({ policy, onChange, disabled }: PolicyEditorProps) 
               {policy.blocked_companies.map((company, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 rounded-full text-sm"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-500/10 border border-red-500/30 text-red-400 rounded-full text-sm"
                 >
                   {company}
                   <button
                     onClick={() => removeBlockedCompany(i)}
                     disabled={disabled}
-                    className="hover:text-red-600 disabled:opacity-50"
+                    className="hover:text-red-300 disabled:opacity-50 transition-colors"
                   >
                     ×
                   </button>
@@ -199,10 +212,10 @@ export function PolicyEditor({ policy, onChange, disabled }: PolicyEditorProps) 
 
         {/* Blocked Role Types */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-sm font-medium text-slate-300 mb-2">
             Blocked Role Types
           </label>
-          <div className="flex gap-2 mb-2">
+          <div className="flex gap-2 mb-3">
             <Input
               placeholder="e.g., Intern, Manager"
               value={blockedRole}
@@ -223,13 +236,13 @@ export function PolicyEditor({ policy, onChange, disabled }: PolicyEditorProps) 
               {policy.blocked_role_types.map((role, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 rounded-full text-sm"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-500/10 border border-red-500/30 text-red-400 rounded-full text-sm"
                 >
                   {role}
                   <button
                     onClick={() => removeBlockedRole(i)}
                     disabled={disabled}
-                    className="hover:text-red-600 disabled:opacity-50"
+                    className="hover:text-red-300 disabled:opacity-50 transition-colors"
                   >
                     ×
                   </button>
@@ -238,7 +251,6 @@ export function PolicyEditor({ policy, onChange, disabled }: PolicyEditorProps) 
             </div>
           )}
         </div>
-      </div>
     </Card>
   );
 }

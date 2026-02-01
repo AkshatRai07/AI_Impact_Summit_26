@@ -6,9 +6,10 @@ interface CardProps {
   children: ReactNode;
   className?: string;
   padding?: "none" | "sm" | "md" | "lg";
+  glow?: boolean;
 }
 
-export function Card({ children, className = "", padding = "md" }: CardProps) {
+export function Card({ children, className = "", padding = "md", glow = false }: CardProps) {
   const paddings = {
     none: "",
     sm: "p-3",
@@ -17,10 +18,15 @@ export function Card({ children, className = "", padding = "md" }: CardProps) {
   };
 
   return (
-    <div
-      className={`bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm ${paddings[padding]} ${className}`}
-    >
-      {children}
+    <div className={`relative ${glow ? 'group' : ''}`}>
+      {glow && (
+        <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-2xl blur opacity-0 group-hover:opacity-75 transition-opacity duration-500" />
+      )}
+      <div
+        className={`relative bg-[#121214]/80 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl ${paddings[padding]} ${className}`}
+      >
+        {children}
+      </div>
     </div>
   );
 }
@@ -33,13 +39,13 @@ interface CardHeaderProps {
 
 export function CardHeader({ title, description, action }: CardHeaderProps) {
   return (
-    <div className="flex items-start justify-between mb-4">
+    <div className="flex items-start justify-between mb-6">
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <h3 className="text-lg font-semibold text-white">
           {title}
         </h3>
         {description && (
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+          <p className="mt-1 text-sm text-slate-400">
             {description}
           </p>
         )}

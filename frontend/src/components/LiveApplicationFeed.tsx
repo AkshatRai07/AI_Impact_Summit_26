@@ -213,7 +213,7 @@ export function LiveApplicationFeed({
   return (
     <div className="space-y-6">
       {/* Status Header */}
-      <Card>
+      <Card glow>
         <CardHeader
           title="Live Application Feed"
           description={
@@ -235,55 +235,55 @@ export function LiveApplicationFeed({
         />
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl backdrop-blur-sm">
+            <p className="text-sm text-red-400">{error}</p>
           </div>
         )}
 
         {/* Live Stage Message */}
         {isRunning && (
-          <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg border border-blue-200 dark:border-blue-700">
-            <p className="text-lg font-medium text-blue-800 dark:text-blue-200 animate-pulse">
+          <div className="mb-4 p-4 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl border border-white/10 backdrop-blur-sm">
+            <p className="text-lg font-medium text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 animate-pulse">
               {stageMessage}
             </p>
           </div>
         )}
 
         {/* Progress Bar */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm text-gray-500">
+        <div className="space-y-3">
+          <div className="flex justify-between text-sm text-slate-400">
             <span>Progress</span>
             <span>
               {currentIndex} / {totalJobs} jobs
             </span>
           </div>
-          <Progress value={progress} showLabel />
+          <Progress value={progress} showLabel gradient />
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mt-4">
-          <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-            <p className="text-2xl font-bold text-green-600">{totalSubmitted}</p>
-            <p className="text-xs text-gray-500">Submitted</p>
+        <div className="grid grid-cols-3 gap-4 mt-6">
+          <div className="text-center p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl">
+            <p className="text-2xl font-bold text-emerald-400">{totalSubmitted}</p>
+            <p className="text-xs text-slate-400">Submitted</p>
           </div>
-          <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-            <p className="text-2xl font-bold text-red-600">{totalFailed}</p>
-            <p className="text-xs text-gray-500">Failed</p>
+          <div className="text-center p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+            <p className="text-2xl font-bold text-red-400">{totalFailed}</p>
+            <p className="text-xs text-slate-400">Failed</p>
           </div>
-          <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+          <div className="text-center p-4 bg-white/5 border border-white/10 rounded-xl">
+            <p className="text-2xl font-bold text-white">
               {Math.max(0, totalJobs - currentIndex)}
             </p>
-            <p className="text-xs text-gray-500">Remaining</p>
+            <p className="text-xs text-slate-400">Remaining</p>
           </div>
         </div>
       </Card>
 
       {/* Applications List */}
       {applications.length > 0 && (
-        <Card>
+        <Card glow>
           <CardHeader title="Applications" description={`${applications.length} processed`} />
-          <div className="space-y-3 max-h-[400px] overflow-y-auto">
+          <div className="space-y-3 max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
             {applications
               .slice()
               .reverse()
@@ -301,10 +301,10 @@ function ApplicationCard({ application }: { application: LiveApplication }) {
   const [showDetails, setShowDetails] = useState(false);
 
   const statusStyles = {
-    processing: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-    submitted: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-    failed: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-    skipped: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
+    processing: "bg-amber-500/10 border border-amber-500/30 text-amber-400",
+    submitted: "bg-emerald-500/10 border border-emerald-500/30 text-emerald-400",
+    failed: "bg-red-500/10 border border-red-500/30 text-red-400",
+    skipped: "bg-slate-500/10 border border-slate-500/30 text-slate-400",
   };
 
   const statusLabels = {
@@ -315,27 +315,27 @@ function ApplicationCard({ application }: { application: LiveApplication }) {
   };
 
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+    <div className="border border-white/10 bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <h4 className="font-medium text-gray-900 dark:text-gray-100">{application.job_title}</h4>
-          <p className="text-sm text-gray-500 dark:text-gray-400">{application.company}</p>
+          <h4 className="font-medium text-white">{application.job_title}</h4>
+          <p className="text-sm text-slate-400">{application.company}</p>
         </div>
-        <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusStyles[application.status]}`}>
+        <span className={`px-3 py-1 text-xs font-medium rounded-full ${statusStyles[application.status]}`}>
           {statusLabels[application.status]}
         </span>
       </div>
 
       {/* Confirmation ID for submitted */}
       {application.confirmation_id && (
-        <p className="mt-2 text-xs text-gray-500">
-          Confirmation: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">{application.confirmation_id}</code>
+        <p className="mt-3 text-xs text-slate-500">
+          Confirmation: <code className="bg-white/10 text-emerald-400 px-2 py-0.5 rounded">{application.confirmation_id}</code>
         </p>
       )}
 
       {/* Error message for failed */}
       {application.error_message && (
-        <p className="mt-2 text-xs text-red-500">{application.error_message}</p>
+        <p className="mt-3 text-xs text-red-400">{application.error_message}</p>
       )}
 
       {/* Toggle for personalized content */}
@@ -343,20 +343,20 @@ function ApplicationCard({ application }: { application: LiveApplication }) {
         <div className="mt-3">
           <button
             onClick={() => setShowDetails(!showDetails)}
-            className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+            className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
           >
             {showDetails ? "Hide" : "Show"} Personalized Application
           </button>
           {showDetails && (
-            <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap max-h-48 overflow-y-auto">
-              <p className="font-medium mb-2">Cover Letter:</p>
+            <div className="mt-3 p-4 bg-black/40 border border-white/10 rounded-xl text-sm text-slate-300 whitespace-pre-wrap max-h-48 overflow-y-auto">
+              <p className="font-medium mb-2 text-white">Cover Letter:</p>
               {application.tailored_cover_letter}
             </div>
           )}
         </div>
       )}
 
-      <p className="mt-2 text-xs text-gray-400">{application.timestamp.toLocaleTimeString()}</p>
+      <p className="mt-3 text-xs text-slate-500">{application.timestamp.toLocaleTimeString()}</p>
     </div>
   );
 }

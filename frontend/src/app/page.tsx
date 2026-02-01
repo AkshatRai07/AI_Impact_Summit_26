@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthPage } from "@/components/AuthPage";
+import { LandingPage } from "@/components/LandingPage";
 
 // Dynamic import to prevent SSR issues
 const Dashboard = dynamic(
@@ -12,24 +14,30 @@ const Dashboard = dynamic(
 
 export default function Home() {
   const { user, loading } = useAuth();
+  const [showAuth, setShowAuth] = useState(false);
 
   // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+      <div className="min-h-screen flex items-center justify-center bg-slate-950">
         <div className="text-center">
-          <div className="animate-spin w-10 h-10 border-3 border-blue-600 border-t-transparent rounded-full mx-auto" />
-          <p className="text-sm text-gray-500 mt-4">Loading...</p>
+          <div className="animate-spin w-10 h-10 border-3 border-blue-500 border-t-transparent rounded-full mx-auto" />
+          <p className="text-sm text-slate-500 mt-4">Loading...</p>
         </div>
       </div>
     );
   }
 
-  // Show auth page if not logged in
-  if (!user) {
-    return <AuthPage />;
+  // Show dashboard if logged in
+  if (user) {
+    return <Dashboard />;
   }
 
-  // Show dashboard if logged in
-  return <Dashboard />;
+  // Show auth page if user clicked "Get Started"
+  if (showAuth) {
+    return <AuthPage onBack={() => setShowAuth(false)} />;
+  }
+
+  // Show landing page by default
+  return <LandingPage onGetStarted={() => setShowAuth(true)} />;
 }

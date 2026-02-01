@@ -103,13 +103,20 @@ export function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-[#09090b] relative overflow-hidden">
+      {/* Background FX */}
+      <div className="absolute inset-0 z-0 opacity-20 pointer-events-none" 
+           style={{ backgroundImage: 'radial-gradient(#334155 1px, transparent 1px)', backgroundSize: '32px 32px' }}>
+      </div>
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-600/10 rounded-full blur-[100px] pointer-events-none"></div>
+
       {/* Header */}
-      <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+      <header className="relative z-10 bg-[#121214]/80 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
                 <svg
                   className="w-5 h-5 text-white"
                   fill="none"
@@ -120,21 +127,21 @@ export function Dashboard() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
                   />
                 </svg>
               </div>
-              <span className="font-semibold text-gray-900 dark:text-gray-100">
-                Job Agent
+              <span className="font-bold text-white text-lg">
+                Arbeit
               </span>
             </div>
 
             <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-500 dark:text-gray-400 hidden sm:block">
+              <span className="text-sm text-slate-400 hidden sm:block">
                 {user?.email}
               </span>
-              <Button variant="secondary" size="sm" onClick={handleClearApplications}>
-                🗑️ Clear Apps
+              <Button variant="ghost" size="sm" onClick={handleClearApplications}>
+                🗑️ Clear
               </Button>
               <Button variant="ghost" size="sm" onClick={logout}>
                 Sign Out
@@ -145,7 +152,7 @@ export function Dashboard() {
       </header>
 
       {/* Step Navigation */}
-      <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+      <nav className="relative z-10 bg-[#121214]/60 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-1 sm:gap-2 py-3 overflow-x-auto">
             {steps.map((s, index) => {
@@ -157,19 +164,19 @@ export function Dashboard() {
                   key={s.id}
                   onClick={() => canNavigate && setStep(s.id)}
                   disabled={!canNavigate}
-                  className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap ${
                     isActive
-                      ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                      ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-white border border-blue-500/30"
                       : canNavigate
-                      ? "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-                      : "text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                      ? "text-slate-400 hover:text-white hover:bg-white/5"
+                      : "text-slate-600 cursor-not-allowed"
                   }`}
                 >
                   <span>{s.icon}</span>
                   <span className="hidden sm:inline">{s.label}</span>
                   {index < steps.length - 1 && (
                     <svg
-                      className="w-4 h-4 text-gray-300 dark:text-gray-600 hidden sm:block ml-2"
+                      className="w-4 h-4 text-slate-600 hidden sm:block ml-2"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -190,7 +197,7 @@ export function Dashboard() {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         <div className="space-y-6">
           {/* Upload Step */}
           {step === "upload" && (
@@ -209,7 +216,7 @@ export function Dashboard() {
                 <Button variant="secondary" onClick={handleReset}>
                   Upload New Resume
                 </Button>
-                <Button onClick={() => setStep("policy")}>
+                <Button variant="gradient" onClick={() => setStep("policy")}>
                   Continue to Policy →
                 </Button>
               </div>
@@ -228,7 +235,7 @@ export function Dashboard() {
                 <Button variant="secondary" onClick={() => setStep("review")}>
                   ← Back to Profile
                 </Button>
-                <Button onClick={() => setStep("apply")}>
+                <Button variant="gradient" onClick={() => setStep("apply")}>
                   Continue to Apply →
                 </Button>
               </div>
@@ -240,22 +247,22 @@ export function Dashboard() {
             <div className="space-y-6">
               {/* Start Workflow Card */}
               {!isWorkflowRunning && (
-                <Card>
-                  <div className="text-center py-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4">
-                      <span className="text-3xl">🚀</span>
+                <Card glow>
+                  <div className="text-center py-10">
+                    <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl mb-6 border border-white/10">
+                      <span className="text-4xl">🚀</span>
                     </div>
-                    <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
-                      Ready to Start Autonomous Applications
+                    <h2 className="text-2xl font-bold text-white mb-3">
+                      Ready to Launch Autonomous Applications
                     </h2>
-                    <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                      The agent will search for jobs, personalize your applications,
-                      and submit them automatically based on your policy.
+                    <p className="text-slate-400 mb-8 max-w-lg mx-auto leading-relaxed">
+                      The AI agent will search for matching jobs, craft personalized applications,
+                      and submit them automatically based on your policy preferences.
                     </p>
 
                     {workflowError && (
-                      <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg max-w-md mx-auto">
-                        <p className="text-sm text-red-600 dark:text-red-400">
+                      <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl max-w-md mx-auto backdrop-blur-sm">
+                        <p className="text-sm text-red-400">
                           {workflowError}
                         </p>
                       </div>
@@ -266,18 +273,21 @@ export function Dashboard() {
                         ← Edit Policy
                       </Button>
                       <Button
+                        variant="gradient"
                         size="lg"
                         onClick={handleStartWorkflow}
                         loading={startingWorkflow}
                         disabled={!policy.enabled}
+                        className="shadow-lg shadow-blue-500/25"
                       >
                         🚀 Start Auto-Apply
                       </Button>
                     </div>
 
                     {!policy.enabled && (
-                      <p className="text-sm text-yellow-600 dark:text-yellow-400 mt-4">
-                        ⚠️ Policy is disabled. Enable it to start applying.
+                      <p className="text-sm text-amber-400 mt-6 flex items-center justify-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                        Policy is disabled. Enable it to start applying.
                       </p>
                     )}
                   </div>

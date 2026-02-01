@@ -3,3 +3,5 @@ export { ProfileView } from "./ProfileView";
 export { PolicyEditor } from "./PolicyEditor";
 export { WorkflowControl } from "./WorkflowControl";
 export { ApplicationTracker } from "./ApplicationTracker";
+export { LandingPage } from "./LandingPage";
+export { AuthPage } from "./AuthPage";

@@ -80,17 +80,17 @@ export function ResumeUpload({
   );
 
   return (
-    <Card>
+    <Card glow>
       <CardHeader
         title="Upload Your Resume"
         description="Upload your resume (PDF) to generate your artifact pack automatically"
       />
 
       <div
-        className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+        className={`relative border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 ${
           dragActive
-            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-            : "border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600"
+            ? "border-blue-500 bg-blue-500/10 shadow-lg shadow-blue-500/20"
+            : "border-white/10 hover:border-white/20 bg-white/5"
         }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -105,10 +105,10 @@ export function ResumeUpload({
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
         />
 
-        <div className="space-y-3">
-          <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+        <div className="space-y-4">
+          <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center">
             <svg
-              className="w-6 h-6 text-gray-500"
+              className="w-8 h-8 text-blue-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -123,33 +123,34 @@ export function ResumeUpload({
           </div>
 
           {uploading ? (
-            <div className="space-y-2">
-              <div className="animate-spin mx-auto w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full" />
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Processing {fileName}...
+            <div className="space-y-3">
+              <div className="animate-spin mx-auto w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full" />
+              <p className="text-sm text-slate-400">
+                Processing <span className="text-blue-400">{fileName}</span>...
               </p>
             </div>
           ) : fileName ? (
-            <p className="text-sm text-green-600 dark:text-green-400">
-              ✓ {fileName} uploaded
+            <p className="text-sm text-emerald-400 flex items-center justify-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+              {fileName} uploaded successfully
             </p>
           ) : (
             <>
-              <p className="text-gray-600 dark:text-gray-400">
-                <span className="font-medium text-blue-600 dark:text-blue-400">
+              <p className="text-slate-300">
+                <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
                   Click to upload
                 </span>{" "}
                 or drag and drop
               </p>
-              <p className="text-xs text-gray-500">PDF only, up to 10MB</p>
+              <p className="text-xs text-slate-500">PDF only, up to 10MB</p>
             </>
           )}
         </div>
       </div>
 
       {error && (
-        <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        <div className="mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl backdrop-blur-sm">
+          <p className="text-sm text-red-400">{error}</p>
         </div>
       )}
     </Card>
